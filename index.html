@@ -387,7 +387,7 @@ function renderTable(rows) {
       return '<tr>' + headers.map((_,i) => {
         let cls = '';
         if (i === prgrCol) cls = isMine ? 'mine' : 'hl';
-        return '<td class="' + cls + '">' + (row[i] ?? '') + '</td>';
+        return '<td class="' + cls + '">' + formatVal(row[i]) + '</td>';
       }).join('') + '</tr>';
     }).join('');
   }
@@ -406,9 +406,20 @@ function renderTable(rows) {
 }
 
 // ── Copy ──────────────────────────────────────────────────────────────────────
+function formatVal(val) {
+  if (val === null || val === undefined) return '';
+  if (val instanceof Date) {
+    const dd = String(val.getDate()).padStart(2,'0');
+    const mm = String(val.getMonth()+1).padStart(2,'0');
+    const yyyy = val.getFullYear();
+    return dd + '/' + mm + '/' + yyyy;
+  }
+  return String(val).replace(/\t/g,' ');
+}
+
 copyBtn.addEventListener('click', () => {
   const tsv = filteredRows.map(row =>
-    headers.map((_,i) => String(row[i]??'').replace(/\t/g,' ')).join('\t')
+    headers.map((_,i) => formatVal(row[i])).join('\t')
   ).join('\n');
   navigator.clipboard.writeText(tsv).then(() => {
     copyBtn.textContent = '✓ Copied!';
