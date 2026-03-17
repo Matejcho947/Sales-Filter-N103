@@ -387,7 +387,9 @@ function renderTable(rows) {
       return '<tr>' + headers.map((_,i) => {
         let cls = '';
         if (i === prgrCol) cls = isMine ? 'mine' : 'hl';
-        return '<td class="' + cls + '">' + formatVal(row[i]) + '</td>';
+        const cellVal = row[i];
+        const display = (cellVal instanceof Date && !isNaN(cellVal)) ? displayDate(cellVal) : (typeof cellVal === 'number' && cellVal > 32874 && cellVal < 73050 && Number.isInteger(cellVal) ? displayDate(new Date(Date.UTC(1899,11,31) + cellVal * 86400000)) : String(cellVal ?? ''));
+        return '<td class="' + cls + '">' + display + '</td>';
       }).join('') + '</tr>';
     }).join('');
   }
@@ -406,13 +408,26 @@ function renderTable(rows) {
 }
 
 // ── Copy ──────────────────────────────────────────────────────────────────────
+function displayDate(d) {
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  const dd = String(local.getUTCDate()).padStart(2,'0');
+  const mm = String(local.getUTCMonth()+1).padStart(2,'0');
+  const yyyy = local.getUTCFullYear();
+  return dd + '/' + mm + '/' + yyyy;
+}
+function dateToSerial(d) {
+  // Convert JS Date to Excel serial number (days since 1900-01-01 with Excel leap year bug)
+  const utc = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  const excelEpoch = Date.UTC(1899, 11, 31);
+  return Math.round((utc - excelEpoch) / 86400000);
+}
 function formatVal(val) {
   if (val === null || val === undefined) return '';
-  if (val instanceof Date) {
-    const dd = String(val.getDate()).padStart(2,'0');
-    const mm = String(val.getMonth()+1).padStart(2,'0');
-    const yyyy = val.getFullYear();
-    return dd + '/' + mm + '/' + yyyy;
+  if (val instanceof Date && !isNaN(val)) {
+    return dateToSerial(val);
+  }
+  if (typeof val === 'number' && val > 32874 && val < 73050 && Number.isInteger(val)) {
+    return val;
   }
   return String(val).replace(/\t/g,' ');
 }
