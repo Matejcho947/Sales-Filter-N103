@@ -407,7 +407,7 @@ function renderTable(rows) {
   }
 }
 
-// ── Date helpers (no JS Date, no timezone) ───────────────────────────────────
+// ── Date helpers ─────────────────────────────────────────────────────────────
 function isExcelDate(val) {
   return typeof val === 'number' && Number.isInteger(val) && val > 32874 && val < 73050;
 }
@@ -417,7 +417,7 @@ function serialToDisplay(serial) {
 }
 function formatVal(val) {
   if (val === null || val === undefined) return '';
-  if (isExcelDate(val)) return val;
+  if (isExcelDate(val)) return serialToDisplay(val);
   return String(val).replace(/\t/g,' ');
 }
 
