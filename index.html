@@ -415,6 +415,9 @@ function serialToDisplay(serial) {
   const d = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
   return String(d.getUTCDate()).padStart(2,'0') + '/' + String(d.getUTCMonth()+1).padStart(2,'0') + '/' + d.getUTCFullYear();
 }
+function toComma(num) {
+  return num.toFixed(2);
+}
 function parseAndFormat(str) {
   const s = String(str).trim();
   let num = null;
@@ -422,8 +425,7 @@ function parseAndFormat(str) {
   else if (/^-?\d+\.\d+$/.test(s)) num = parseFloat(s);
   else if (/^-?\d+$/.test(s)) num = parseFloat(s);
   if (num === null) return null;
-  // Always output with comma as decimal separator
-  return num.toString().replace('.', ',');
+  return toComma(num);
 }
 function formatVal(val) {
   if (val === null || val === undefined) return '';
@@ -432,7 +434,7 @@ function formatVal(val) {
     const n = parseAndFormat(val);
     if (n !== null) return n;
   }
-  if (typeof val === 'number') return val.toString().replace('.', ',');
+  if (typeof val === 'number') return toComma(val);
   return String(val).replace(/\t/g,' ');
 }
 
